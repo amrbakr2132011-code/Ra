@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نونتي - my everything ❤️</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo & Reem Kufi -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purpleTheme: {
+                            50: '#F5F3FF',
+                            100: '#EDE9FE',
+                            200: '#DDD6FE',
+                            300: '#C4B5FD',
+                            400: '#A78BFA',
+                            500: '#8B5CF6',
+                            600: '#7C3AED',
+                            700: '#6D28D9',
+                            800: '#5B21B6',
+                            900: '#4C1D95',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        reem: ['Reem Kufi', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(180deg, #E9D5FF 0%, #D8B4FE 40%, #C084FC 100%);
+            min-height: 100vh;
+            color: #4C1D95;
+            overflow-x: hidden;
+        }
+
+        /* Glass Cards Styling matching the screenshot */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.12);
+        }
+
+        .purple-card {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.15);
+        }
+
+        /* Floating Animation for Butterflies and Hearts */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .floating {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        /* Interactive Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: #E9D5FF;
+            height: 12px;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #8B5CF6;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            transition: transform 0.2s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        #canvasOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="relative selection:bg-purpleTheme-500 selection:text-white">
+
+    <!-- Canvas for Floating Purple Hearts & Butterflies Effect -->
+    <canvas id="canvasOverlay"></canvas>
+
+    <!-- 1. PASSWORD SCREEN LAYER -->
+    <div id="passwordScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-[#D8B4FE]/95 backdrop-blur-md transition-opacity duration-700">
+        <!-- Floating Heart Container -->
+        <div class="relative w-80 h-80 sm:w-96 sm:h-96 flex flex-col items-center justify-center text-center p-6">
+            <!-- Big Purple Heart SVG Background -->
+            <svg class="absolute inset-0 w-full h-full text-purpleTheme-300 drop-shadow-xl" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+
+            <!-- Text & Lock Content inside Heart -->
+            <div class="relative z-10 flex flex-col items-center space-y-3 w-full px-8">
+                <h1 class="font-reem text-3xl font-bold text-purpleTheme-900 drop-shadow-sm"> بحبك ي نونتي ♥️</h1>
+                <p class="text-sm font-medium text-purpleTheme-700 tracking-wider">my everything</p>
+                
+                <span class="text-xs text-purpleTheme-800 font-semibold pt-2">Password</span>
+                
+                <!-- Password Input -->
+                <input type="password" id="passInput" placeholder="password" 
+                       class="w-full text-center px-4 py-2.5 rounded-xl bg-white/90 text-purpleTheme-900 font-semibold shadow-inner focus:outline-none focus:ring-2 focus:ring-purpleTheme-600 transition-all text-sm placeholder-purpleTheme-300">
+                
+                <!-- Unlock Button -->
+                <button id="unlockBtn" class="w-full py-2.5 rounded-xl bg-purpleTheme-600 hover:bg-purpleTheme-700 text-white font-bold text-base shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 mt-2">
+                    Unlock
+                </button>
+                
+                <!-- Error Message Container -->
+                <p id="errorMsg" class="text-xs text-red-600 font-bold hidden animate-bounce pt-1">غلط ي نونتي !   جربي اسمك كدا</p>
+            </div>
+        </div>
+
+        <!-- Decorative butterflies around password heart -->
+        <i class="fa-solid fa-butterfly text-2xl text-purpleTheme-500 absolute top-1/4 left-10 floating"></i>
+        <i class="fa-solid fa-butterfly text-3xl text-purpleTheme-600 absolute bottom-1/4 right-12 floating" style="animation-delay: 1.5s;"></i>
+        <i class="fa-solid fa-heart text-xl text-purpleTheme-400 absolute top-1/3 right-16 floating" style="animation-delay: 0.8s;"></i>
+        <i class="fa-solid fa-heart text-lg text-purpleTheme-500 absolute bottom-1/3 left-16 floating" style="animation-delay: 2s;"></i>
+    </div>
+
+    <!-- 2. LOVE QUESTION POPUP INTERACTION SCREEN -->
+    <div id="questionScreen" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 bg-black/40 backdrop-blur-sm hidden transition-all duration-500">
+        <!-- Interactive Card Stack -->
+        <div class="relative w-full max-w-xs flex flex-col items-center">
+            <!-- First Prompt Card -->
+            <div id="card1" class="glass-card w-full p-6 rounded-3xl text-center space-y-4 shadow-2xl transition-all duration-500 z-20 transform">
+                <div class="text-4xl">😒</div>
+                <h3 class="font-reem text-xl font-bold text-purpleTheme-900">مش بتحبيني؟</h3>
+                <button id="noBtn" class="w-full py-2 bg-purpleTheme-200 hover:bg-purpleTheme-300 text-purpleTheme-800 font-bold rounded-xl transition-all">
+                    إلا بحبك!
+                </button>
+            </div>
+
+            <!-- Second Card Revealing underneath -->
+            <div id="card2" class="glass-card w-full p-6 rounded-3xl text-center space-y-4 shadow-2xl transition-all duration-500 absolute top-4 z-10 opacity-80 scale-95">
+                <div class="text-4xl">💜</div>
+                <h3 class="font-reem text-xl font-bold text-purpleTheme-900">بتحبيني؟</h3>
+                <button id="yesBtn" class="w-full py-2 bg-purpleTheme-600 text-white font-bold rounded-xl shadow-md hover:bg-purpleTheme-700 transition-all">
+                    بحبك جداً! ❤️
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MAIN APP CONTENT (Hidden until password unlocked) -->
+    <main id="mainApp" class="content-layer max-w-md mx-auto px-4 py-8 space-y-8 hidden">
+
+        <!-- HEADER SECTION WITH HER PHOTO -->
+        <section class="text-center space-y-4 pt-4">
+            <!-- PHOTO PLACEHOLDER CONTAINER -->
+            <div class="relative w-36 h-36 mx-auto">
+                <div class="w-full h-full rounded-full p-1 bg-gradient-to-tr from-purpleTheme-400 via-purpleTheme-600 to-purpleTheme-300 shadow-xl overflow-hidden relative">
+                    
+                
+                    <img id="herPhoto" 
+                         src="R.webp" 
+                         alt="نونتي" 
+                         class="w-full h-full object-cover rounded-full"
+                         onerror="this.src='https://placehold.co/300x300/DDD6FE/5B21B6?text=%D9%86%D9%88%D9%86%D8%AA%D9%8A'">
+
+                </div>
+                <!-- Floating heart badge on photo -->
+                <div class="absolute bottom-1 right-1 bg-purpleTheme-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-heart text-sm"></i>
+                </div>
+            </div>
+
+            <!-- Badge -->
+            <div class="inline-block px-5 py-1 rounded-full bg-white/60 text-purpleTheme-800 text-xs font-bold shadow-sm">
+                بحبك و بعشقك(معايا 100 مشكلة والحل في عنيكي ♥️)
+            </div>
+
+            <!-- Title Header -->
+            <div class="space-y-1">
+                <h2 class="font-reem text-3xl font-extrabold text-purpleTheme-900 flex items-center justify-center gap-2">
+                    نونتي <span class="text-red-500">❤️</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-purpleTheme-800 font-medium leading-relaxed px-4">
+                 (مسدج 11/11 الساعه 11:11 منسيتش عيب عليكي 🫣)   الهديه دي ليكي وبس
+                </p>
+            </div>
+
+            <!-- Floating butterflies -->
+            <div class="flex justify-center gap-4 text-purpleTheme-500 text-sm">
+                <i class="fa-solid fa-butterfly floating"></i>
+                <i class="fa-solid fa-butterfly floating" style="animation-delay: 1s;"></i>
+                <i class="fa-solid fa-butterfly floating" style="animation-delay: 2s;"></i>
+            </div>
+        </section>
+
+        <!-- LIVE RELATIONSHIP COUNTER (بدايتنا) -->
+        <section class="purple-card p-6 text-center space-y-4">
+            <div class="flex items-center justify-center gap-2">
+                <i class="fa-solid fa-butterfly text-purpleTheme-500"></i>
+                <h3 class="font-reem text-2xl font-bold text-purpleTheme-900">بدايتنا ❤️</h3>
+                <i class="fa-solid fa-butterfly text-purpleTheme-500"></i>
+            </div>
+
+            <!-- Counter Boxes (Days, Hours, Minutes, Seconds) -->
+            <div class="grid grid-cols-4 gap-2 text-center">
+                <!-- Days -->
+                <div class="bg-purpleTheme-400/30 p-3 rounded-2xl">
+                    <span id="cDays" class="block font-reem text-xl sm:text-2xl font-black text-purpleTheme-900">0</span>
+                    <span class="text-xs text-purpleTheme-800 font-bold">يوم</span>
+                </div>
+                <!-- Hours -->
+                <div class="bg-purpleTheme-400/30 p-3 rounded-2xl">
+                    <span id="cHours" class="block font-reem text-xl sm:text-2xl font-black text-purpleTheme-900">0</span>
+                    <span class="text-xs text-purpleTheme-800 font-bold">ساعة</span>
+                </div>
+                <!-- Minutes -->
+                <div class="bg-purpleTheme-400/30 p-3 rounded-2xl">
+                    <span id="cMinutes" class="block font-reem text-xl sm:text-2xl font-black text-purpleTheme-900">0</span>
+                    <span class="text-xs text-purpleTheme-800 font-bold">دقيقة</span>
+                </div>
+                <!-- Seconds -->
+                <div class="bg-purpleTheme-400/30 p-3 rounded-2xl">
+                    <span id="cSeconds" class="block font-reem text-xl sm:text-2xl font-black text-purpleTheme-900">0</span>
+                    <span class="text-xs text-purpleTheme-800 font-bold">ثانية</span>
+                </div>
+            </div>
+
+            <p class="text-xs sm:text-sm font-semibold text-purpleTheme-900 pt-2">
+                كل ثانيه بتعدي وانا ديما بفكر فيكي
+            </p>
+        </section>
+
+        <!-- TIMELINE MEMORIES (شريط الذكريات) -->
+        <section class="space-y-3 relative pl-4 border-r-2 border-purpleTheme-400/40 mr-2">
+            <!-- Memory Item 1 -->
+            <div class="purple-card p-4 relative space-y-1">
+                <div class="absolute -right-3.5 top-4 w-6 h-6 rounded-full bg-purpleTheme-200 border-2 border-purpleTheme-500 flex items-center justify-center text-xs text-purpleTheme-700">
+                    <i class="fa-solid fa-butterfly"></i>
+                </div>
+                <div class="flex items-center justify-between text-xs text-purpleTheme-700 font-bold">
+                    <span>فاكره يوم ما قولتك بحبك</span>
+                    <span class="bg-purpleTheme-200/70 px-2 py-0.5 rounded-md">ربنا يديمك ليا ي نونتي </span>
+                </div>
+            </div>
+
+            <!-- Memory Item 2 -->
+            <div class="purple-card p-4 relative space-y-1">
+                <div class="absolute -right-3.5 top-4 w-6 h-6 rounded-full bg-purpleTheme-200 border-2 border-purpleTheme-500 flex items-center justify-center text-xs text-purpleTheme-700">
+                    <i class="fa-solid fa-butterfly"></i>
+                </div>
+                <div class="flex items-center justify-between text-xs text-purpleTheme-700 font-bold">
+                    <span>اول كلام لينا سوا</span>
+                    <span class="bg-purpleTheme-200/70 px-2 py-0.5 rounded-md">2025-3-31 </span>
+                </div>
+            </div>
+
+            <!-- Memory Item 3 -->
+            <div class="purple-card p-4 relative space-y-1">
+                <div class="absolute -right-3.5 top-4 w-6 h-6 rounded-full bg-purpleTheme-200 border-2 border-purpleTheme-500 flex items-center justify-center text-xs text-purpleTheme-700">
+                    <i class="fa-solid fa-butterfly"></i>
+                </div>
+                <div class="flex items-center justify-between text-xs text-purpleTheme-700 font-bold">
+                    <span>يوم مميز لينا فاكراه؟</span>
+                    <span class="bg-purpleTheme-200/70 px-2 py-0.5 rounded-md">2009-1-1 </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECRET ENVELOPE CARD -->
+        <section class="text-center">
+            <div id="envelopeBtn" class="purple-card p-8 cursor-pointer hover:scale-105 transition-all duration-300 space-y-3 border-2 border-purpleTheme-300">
+                <div class="text-4xl animate-bounce">💌</div>
+                <p class="font-reem text-lg font-bold text-purpleTheme-900">اضغطي هنا ي نونتي 💜</p>
+            </div>
+        </section>
+
+        <!-- LOVE SLIDER CARD (عايزه تعرفي بحبك قد  ايه؟ .شدي الشريط دا
+ا) -->
+        <section class="purple-card p-6 text-center space-y-5">
+            <h3 class="font-reem text-xl font-bold text-purpleTheme-900">عايزه تعرفي بحبك قد ايه؟ شدي الشريط دا</h3>
+            
+            <div id="sliderHeart" class="text-4xl text-purpleTheme-600 transition-all duration-300">
+                💜
+            </div>
+
+            <div class="px-2">
+                <input type="range" id="loveSlider" min="1" max="100" value="30">
+            </div>
+
+            <p id="sliderText" class="font-semibold text-purpleTheme-800 text-sm h-6">
+                بحبك شويه🤔
+            </p>
+        </section>
+
+        <footer class="text-center py-6 text-xs text-purpleTheme-800 font-semibold">
+            lovelyy.app
+        </footer>
+    </main>
+
+    <!-- SECRET LOVE LETTER MODAL CONTAINER -->
+    <div id="letterModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="purple-card max-w-sm w-full p-6 text-center space-y-4 relative shadow-2xl border-2 border-purpleTheme-400">
+            <button id="closeLetter" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-purpleTheme-200 text-purpleTheme-800 flex items-center justify-center font-bold">
+                ✕
+            </button>
+            <h3 class="font-reem text-2xl font-bold text-purpleTheme-900 flex items-center justify-center gap-2">
+                يروح قلبي <span class="text-red-500">❤️</span>
+            </h3>
+            <div class="text-sm text-purpleTheme-900 leading-relaxed font-semibold text-right px-2 space-y-2">
+                <p>
+                    انا عملت هديه دي علشان عايز اقولك اني بحبك انا بحب كلامنا سوا وكل حاجه بينا
+                </p>
+                <p>
+                    بحب كلامك ليا بحب كل حاجه فيكي مهما ما اوصفلك انا بحبك قد ايه مش هخلص بس الي اعرفه انك غاليه عندي واني بحبك وبس بحبككك وربنا يخليكي ليا ❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. AUDIO PLAYER BAR AT BOTTOM -->
+    <div id="audioBar" class="fixed bottom-3 left-0 right-0 z-30 max-w-md mx-auto px-4 hidden">
+        <div class="glass-card px-4 py-2.5 rounded-full flex items-center justify-between shadow-2xl border border-white">
+            
+            <!-- Song Title & Icon -->
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-9 h-9 rounded-full bg-purpleTheme-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <i class="fa-solid fa-music text-xs"></i>
+                </div>
+                <div class="text-right truncate">
+                    <p class="text-xs font-bold text-purpleTheme-900 truncate">بعشقك ي نونتي 😍</p>
+                    <span class="text-[10px] text-purpleTheme-700 font-semibold">1 / 1</span>
+                </div>
+            </div>
+
+            <!-- Audio Player Controls -->
+            <div class="flex items-center gap-2">
+                <button id="prevBtn" class="text-purpleTheme-700 text-xs p-1 hover:text-purpleTheme-900">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
+                
+                <button id="playPauseBtn" class="w-8 h-8 rounded-full bg-purpleTheme-600 text-white flex items-center justify-center shadow-md hover:bg-purpleTheme-700 transition-all">
+                    <i id="playIcon" class="fa-solid fa-play text-xs"></i>
+                </button>
+                
+                <button id="nextBtn" class="text-purpleTheme-700 text-xs p-1 hover:text-purpleTheme-900">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+            </div>
+
+            <!-- Hidden HTML Audio Element -->
+            <!-- ====================================================== -->
+            <!-- <!-- ضع رابط ملف الأغنية MP3 هنا --> -->
+            <!-- غيّر قيمة src بالرابط الخاص بالأغنية المفضلة لديكما -->
+            <!-- ====================================================== -->
+            <audio id="audioElement" loop>
+                <source src="NONO.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ----------------------------------------------------
+           1. PASSWORD LOCK LOGIC (Strict Case "NONETY")
+           ---------------------------------------------------- */
+        const unlockBtn = document.getElementById('unlockBtn');
+        const passInput = document.getElementById('passInput');
+        const errorMsg = document.getElementById('errorMsg');
+        const passwordScreen = document.getElementById('passwordScreen');
+        const questionScreen = document.getElementById('questionScreen');
+        const mainApp = document.getElementById('mainApp');
+        const audioBar = document.getElementById('audioBar');
+
+        function checkPassword() {
+            if (passInput.value === 'NONETY') {
+                errorMsg.classList.add('hidden');
+                passwordScreen.classList.add('opacity-0');
+                setTimeout(() => {
+                    passwordScreen.classList.add('hidden');
+                    questionScreen.classList.remove('hidden');
+                }, 700);
+            } else {
+                errorMsg.classList.remove('hidden');
+                passInput.value = '';
+            }
+        }
+
+        unlockBtn.addEventListener('click', checkPassword);
+        passInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        /* ----------------------------------------------------
+           2. QUESTION CARDS LOGIC (بتحبيني؟)
+           ---------------------------------------------------- */
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const card1 = document.getElementById('card1');
+        const card2 = document.getElementById('card2');
+
+        noBtn.addEventListener('click', () => {
+            card1.classList.add('opacity-0', '-translate-y-12', 'pointer-events-none');
+            card2.classList.remove('opacity-80', 'scale-95');
+            card2.classList.add('scale-100', 'z-30');
+        });
+
+        yesBtn.addEventListener('click', () => {
+            questionScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                questionScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                audioBar.classList.remove('hidden');
+                startTimer();
+                // Attempt to auto play audio
+                playAudio();
+            }, 500);
+        });
+
+        /* ----------------------------------------------------
+           3. COUNTER LOGIC (تاريخ البداية: 31/03/2025)
+           ---------------------------------------------------- */
+        // Explicit Start Date: March 31, 2025
+        const startDate = new Date('2025-03-31T00:00:00');
+
+        function updateCounter() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            if (diff < 0) {
+                // If current date is prior to start date
+                document.getElementById('cDays').innerText = "0";
+                document.getElementById('cHours').innerText = "0";
+                document.getElementById('cMinutes').innerText = "0";
+                document.getElementById('cSeconds').innerText = "0";
+                return;
+            }
+
+            const seconds = Math.floor((diff / 1000) % 60);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            document.getElementById('cDays').innerText = days;
+            document.getElementById('cHours').innerText = hours;
+            document.getElementById('cMinutes').innerText = minutes;
+            document.getElementById('cSeconds').innerText = seconds;
+        }
+
+        function startTimer() {
+            updateCounter();
+            setInterval(updateCounter, 1000);
+        }
+
+        /* ----------------------------------------------------
+           4. LOVE SLIDER INTERACTION
+           ---------------------------------------------------- */
+        const loveSlider = document.getElementById('loveSlider');
+        const sliderText = document.getElementById('sliderText');
+        const sliderHeart = document.getElementById('sliderHeart');
+
+        loveSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            const scaleFactor = 1 + (val / 100);
+            sliderHeart.style.transform = `scale(${scaleFactor})`;
+
+            if (val < 40) {
+                sliderText.innerText = "بحبك شويه🤔";
+            } else if (val < 80) {
+                sliderText.innerText = "بحبك اووي💜";
+            } else {
+                sliderText.innerText = "مهما اقولك بحبك قد ايه مش هخلص بجد بحبك❤️";
+            }
+        });
+
+        /* ----------------------------------------------------
+           5. ENVELOPE LETTER MODAL
+           ---------------------------------------------------- */
+        const envelopeBtn = document.getElementById('envelopeBtn');
+        const letterModal = document.getElementById('letterModal');
+        const closeLetter = document.getElementById('closeLetter');
+
+        envelopeBtn.addEventListener('click', () => {
+            letterModal.classList.remove('hidden');
+        });
+
+        closeLetter.addEventListener('click', () => {
+            letterModal.classList.add('hidden');
+        });
+
+        /* ----------------------------------------------------
+           6. AUDIO PLAYER LOGIC
+           ---------------------------------------------------- */
+        const audio = document.getElementById('audioElement');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+
+        function playAudio() {
+            audio.play().then(() => {
+                playIcon.className = "fa-solid fa-pause text-xs";
+            }).catch(e => {
+                console.log("Audio autoplay prevented", e);
+            });
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playIcon.className = "fa-solid fa-pause text-xs";
+            } else {
+                audio.pause();
+                playIcon.className = "fa-solid fa-play text-xs";
+            }
+        });
+
+        /* ----------------------------------------------------
+           7. FLOATING HEARTS AND BUTTERFLIES CANVAS
+           ---------------------------------------------------- */
+        const canvas = document.getElementById('canvasOverlay');
+        const ctx = canvas.getContext('2d');
+        let elements = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class FloatingElem {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 20;
+                this.size = Math.random() * 12 + 8;
+                this.speedY = Math.random() * 1.2 + 0.5;
+                this.speedX = Math.sin(Math.random() * Math.PI) * 0.8;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.isHeart = Math.random() > 0.4;
+            }
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                if (this.y < -30) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = '#A78BFA';
+                ctx.font = `${this.size}px sans-serif`;
+                ctx.fillText(this.isHeart ? '💜' : '🦋', this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 25; i++) {
+            elements.push(new FloatingElem());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            elements.forEach(el => {
+                el.update();
+                el.draw();
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.onload = function() {
+            animateCanvas();
+        };
+    </script>
+</body>
+</html>
